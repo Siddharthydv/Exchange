@@ -14,6 +14,12 @@ services:
       - timescale-data:/var/lib/postgresql/datas
     networks:
       - default
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "your_user", "-d", "my_database"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
 
   redis:
     image: redis:latest
@@ -59,8 +65,10 @@ services:
       PASSWORD: your_password
       PG_PORT: 5432
     depends_on:
-      - redis
-      - timescaledb
+      timescaledb:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - default
 
