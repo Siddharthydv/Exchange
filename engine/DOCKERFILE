@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:18-alpine AS builder
+FROM node:slim AS build
 
 # Set working directory inside the container
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production
-FROM node:18-alpine AS runner
+FROM node:slim
 
 # Set environment variable for production
 ENV NODE_ENV=production
@@ -26,8 +26,8 @@ ENV NODE_ENV=production
 WORKDIR /app
 
 # Copy the build output and necessary files from the builder stage
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./package.json
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package.json ./package.json
 
 # Install only production dependencies
 RUN npm install --production
