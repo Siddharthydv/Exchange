@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:slim AS build
+FROM node:18-alpine AS builder
 
 # Set working directory inside the container
 WORKDIR /app
@@ -25,15 +25,15 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production
-FROM node:slim
+FROM node:18-alpine AS runner
 
 # Set working directory
 WORKDIR /app
 
 # Copy build output and necessary files from the builder stage
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/public ./public
 
 # Install only production dependencies
 RUN npm install --production
